@@ -101,37 +101,32 @@
     margin: 0 8px;
   }
 
-  /* day toggle */
-  .toggle-row{
+  /* date entry */
+  .date-row{
     display:flex;
     justify-content:center;
-    gap:10px;
+    align-items:center;
+    gap: 10px;
     margin: 26px 0 30px;
-    flex-wrap:wrap;
   }
-  .toggle-btn{
+  .date-label{ font-size: 1.3rem; }
+  .date-input{
     font-family:'Baloo 2', sans-serif;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight:700;
+    color: var(--pink-deep);
+    background: white;
+    border: 2px solid var(--pink-deep);
     padding: 10px 22px;
     border-radius: 999px;
-    border: 2px solid transparent;
-    cursor:pointer;
-    background: white;
-    color: var(--ink-soft);
+    text-align:center;
     box-shadow: 0 4px 12px rgba(255,170,190,0.18);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    min-width: 220px;
   }
-  .toggle-btn:hover{ transform: translateY(-2px); }
-  .toggle-btn.active.school{
-    background: linear-gradient(135deg, var(--pink-deep), #ffb3c6);
-    color:white;
-    box-shadow: 0 6px 16px rgba(255, 130, 160, 0.4);
-  }
-  .toggle-btn.active.weekend{
-    background: linear-gradient(135deg, #8fcf9a, #c5e8b7);
-    color:white;
-    box-shadow: 0 6px 16px rgba(140, 200, 140, 0.4);
+  .date-input::placeholder{ color: #e3a8ba; }
+  .date-input:focus{
+    outline:none;
+    box-shadow: 0 6px 16px rgba(255,130,160,0.35);
   }
 
   /* card */
@@ -325,22 +320,22 @@
     <div class="tagline">plan today, glow tomorrow</div>
   </header>
 
-  <div class="toggle-row">
-    <button class="toggle-btn school active" data-view="school">🌸 Weekday (School Days)</button>
-    <button class="toggle-btn weekend" data-view="weekend">🌼 Weekend (Chill Mode)</button>
+  <div class="date-row">
+    <span class="date-label">📅</span>
+    <input type="text" id="date-input" class="date-input" placeholder="Enter day / date..." />
   </div>
 
   <div id="school-view">
     <div class="card">
-      <div class="card-header school">🌸 Weekday (School Days) 🌸</div>
+      <div class="card-header school">🌸 Weekday 🌸</div>
       <div class="table-head"><span>TIME</span><span>VIBES</span></div>
       <div id="school-rows"></div>
     </div>
   </div>
 
-  <div id="weekend-view" style="display:none;">
+  <div id="weekend-view">
     <div class="card">
-      <div class="card-header weekend">🌼 Weekend (Chill Mode) 🌼</div>
+      <div class="card-header weekend">🌼 Weekend 🌼</div>
       <div class="table-head"><span>TIME</span><span>VIBES</span></div>
       <div id="weekend-rows"></div>
     </div>
@@ -388,25 +383,6 @@
   buildRows('school-rows', schoolTimes, 'school');
   buildRows('weekend-rows', weekendTimes, 'weekend');
 
-  // toggle view
-  const schoolBtn = document.querySelector('.toggle-btn.school');
-  const weekendBtn = document.querySelector('.toggle-btn.weekend');
-  const schoolView = document.getElementById('school-view');
-  const weekendView = document.getElementById('weekend-view');
-
-  schoolBtn.addEventListener('click', () => {
-    schoolBtn.classList.add('active');
-    weekendBtn.classList.remove('active');
-    schoolView.style.display = 'block';
-    weekendView.style.display = 'none';
-  });
-  weekendBtn.addEventListener('click', () => {
-    weekendBtn.classList.add('active');
-    schoolBtn.classList.remove('active');
-    weekendView.style.display = 'block';
-    schoolView.style.display = 'none';
-  });
-
   // persistence via localStorage (works since this is a static site, not a Claude artifact)
   const STORAGE_KEY = 'kawaii-timetable-data';
 
@@ -436,6 +412,13 @@
   if(data.notes) notesEl.value = data.notes;
   notesEl.addEventListener('input', () => {
     data.notes = notesEl.value;
+    saveData(data);
+  });
+
+  const dateEl = document.getElementById('date-input');
+  if(data.dateValue) dateEl.value = data.dateValue;
+  dateEl.addEventListener('input', () => {
+    data.dateValue = dateEl.value;
     saveData(data);
   });
 
