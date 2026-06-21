@@ -1,6 +1,6 @@
 # 🌸 Kawaii Daily Timetable
 
-link:
+link:https://kawai-time-table.netlify.app/
 
 Wanted a cute timetable, so I built one. A single-page, pastel-pink planner for tracking your weekday and weekend schedule — editable times, custom "vibes" for each slot, and a notes box, all wrapped in a soft kawaii aesthetic.
 
