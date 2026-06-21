@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daily Timetable ✧ plan today, glow tomorrow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ffd6e0;
+    --pink-deep:#ff9bb3;
+    --peach:#ffe1c6;
+    --yellow:#fff3c4;
+    --green:#d8f1d6;
+    --mint:#cdeee0;
+    --blue:#cfe8fb;
+    --lavender:#e2d9f7;
+    --lilac:#ecd6f0;
+    --cream:#fff8f1;
+    --cream-deep:#fdeee2;
+    --ink:#6b5364;
+    --ink-soft:#9a8290;
+    --shadow: 0 8px 24px rgba(255, 170, 190, 0.25);
+    --radius: 22px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Quicksand', sans-serif;
+    color:var(--ink);
+    background: radial-gradient(circle at 15% 10%, #ffe8ee 0%, #ffd9e5 35%, #ffeede 70%, #fff6ee 100%);
+    background-attachment: fixed;
+    padding: 36px 16px 80px;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* floating decorative blobs */
+  .float-deco{
+    position:fixed;
+    font-size: 38px;
+    opacity:0.55;
+    animation: drift 9s ease-in-out infinite;
+    pointer-events:none;
+    z-index:0;
+    filter: drop-shadow(0 4px 6px rgba(255,150,180,0.25));
+  }
+  @keyframes drift{
+    0%,100%{ transform: translateY(0px) rotate(-4deg); }
+    50%{ transform: translateY(-14px) rotate(4deg); }
+  }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    position:relative;
+    z-index:1;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom: 28px;
+  }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-size: clamp(2.4rem, 7vw, 3.6rem);
+    margin: 0;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #ff8fab, #ffb86b, #ffd86b, #8fd9a8, #6ec3e8, #b894e8, #ff8fab);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow-slide 8s linear infinite;
+    text-shadow: 0 4px 0 rgba(255,255,255,0.5);
+  }
+  @keyframes rainbow-slide{
+    to{ background-position: 200% center; }
+  }
+
+  .tagline{
+    display:inline-block;
+    margin-top: 14px;
+    background: var(--pink-deep);
+    color: white;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size: 0.95rem;
+    padding: 8px 26px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    position:relative;
+  }
+  .tagline::before, .tagline::after{
+    content: "✧";
+    margin: 0 8px;
+  }
+
+  /* day toggle */
+  .toggle-row{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin: 26px 0 30px;
+    flex-wrap:wrap;
+  }
+  .toggle-btn{
+    font-family:'Baloo 2', sans-serif;
+    font-size: 1rem;
+    font-weight:700;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    cursor:pointer;
+    background: white;
+    color: var(--ink-soft);
+    box-shadow: 0 4px 12px rgba(255,170,190,0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .toggle-btn:hover{ transform: translateY(-2px); }
+  .toggle-btn.active.school{
+    background: linear-gradient(135deg, var(--pink-deep), #ffb3c6);
+    color:white;
+    box-shadow: 0 6px 16px rgba(255, 130, 160, 0.4);
+  }
+  .toggle-btn.active.weekend{
+    background: linear-gradient(135deg, #8fcf9a, #c5e8b7);
+    color:white;
+    box-shadow: 0 6px 16px rgba(140, 200, 140, 0.4);
+  }
+
+  /* card */
+  .card{
+    background: var(--cream);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    margin-bottom: 26px;
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+
+  .card-header{
+    padding: 16px 24px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.25rem;
+    color:white;
+    text-align:center;
+    letter-spacing: 0.5px;
+  }
+  .card-header.school{ background: linear-gradient(135deg, #ff9bb3, #ffb3c6); }
+  .card-header.weekend{ background: linear-gradient(135deg, #9bd9a4, #bfe8b0); }
+
+  .table-head{
+    display:grid;
+    grid-template-columns: 1fr 1.3fr;
+    padding: 14px 24px 8px;
+    font-family:'Baloo 2', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    color: var(--ink-soft);
+  }
+  .table-head span:first-child{ padding-left: 6px;}
+
+  .row{
+    display:grid;
+    grid-template-columns: 1fr 1.3fr;
+    align-items:center;
+    padding: 6px 24px;
+    border-bottom: 1px dashed #f0d9d0;
+    gap: 14px;
+  }
+  .row:last-child{ border-bottom:none; padding-bottom: 18px;}
+
+  .time-pill{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size: 0.92rem;
+    padding: 9px 10px 9px 14px;
+    border-radius: 14px;
+    color: #6b5364;
+  }
+  .time-pill .clock{ font-size: 1rem; flex-shrink:0; }
+  .time-input{
+    border:none;
+    background: transparent;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size: 0.92rem;
+    color: #6b5364;
+    width: 100%;
+    min-width: 0;
+    padding: 4px 2px;
+    border-radius: 8px;
+  }
+  .time-input::placeholder{ color: #b98a98; }
+  .time-input:focus{
+    outline: none;
+    background: rgba(255,255,255,0.55);
+  }
+
+  .vibe-input{
+    width:100%;
+    border:none;
+    background: transparent;
+    font-family:'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    padding: 10px 8px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+  .vibe-input::placeholder{ color: #d8c3cc; font-weight:500; }
+  .vibe-input:focus{
+    outline: none;
+    background: #fff0f5;
+  }
+
+  /* palette colors per row index */
+  .c0{ background: var(--pink); } .c1{ background: var(--peach); }
+  .c2{ background: var(--yellow); } .c3{ background: var(--green); }
+  .c4{ background: var(--mint); } .c5{ background: var(--blue); }
+  .c6{ background: var(--lavender); } .c7{ background: var(--lilac); }
+  .c8{ background: var(--pink); } .c9{ background: var(--peach); }
+  .c10{ background: var(--yellow); }
+
+  /* notes */
+  .notes-card{
+    background: var(--cream-deep);
+    border: 2px dashed var(--pink-deep);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 8px;
+  }
+  .notes-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    text-align:center;
+    color: var(--pink-deep);
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+  textarea#notes{
+    width:100%;
+    min-height: 90px;
+    resize: vertical;
+    border: none;
+    background: transparent;
+    font-family:'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    font-weight:600;
+    color: var(--ink);
+    outline:none;
+  }
+  textarea#notes::placeholder{ color:#dcb9c4; }
+
+  .save-note{
+    text-align:center;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-top: 18px;
+    font-weight:600;
+  }
+  .save-note .dot{ color: #9bd9a4; }
+
+  .reset-btn{
+    display:block;
+    margin: 16px auto 0;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size: 0.85rem;
+    color: var(--pink-deep);
+    background: white;
+    border: 2px solid var(--pink-deep);
+    padding: 7px 18px;
+    border-radius: 999px;
+    cursor:pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .reset-btn:hover{
+    background: var(--pink-deep);
+    color:white;
+    transform: translateY(-1px);
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 30px;
+    font-family:'Baloo 2', sans-serif;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 520px){
+    .table-head{ display:none; }
+    .row{ grid-template-columns: 1fr; gap: 4px; padding: 10px 16px; }
+    .time-pill{ width: 100%; }
+    .time-input{ width: 100%; }
+    .card-header{ font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="float-deco" style="top:6%; left:3%; animation-delay:0s;">🌸</div>
+<div class="float-deco" style="top:14%; right:5%; animation-delay:1.2s;">🧋</div>
+<div class="float-deco" style="top:55%; left:2%; animation-delay:2.4s;">🌷</div>
+<div class="float-deco" style="top:62%; right:4%; animation-delay:0.6s;">🧁</div>
+<div class="float-deco" style="top:85%; left:6%; animation-delay:1.8s;">🍪</div>
+<div class="float-deco" style="top:90%; right:6%; animation-delay:0.9s;">☕</div>
+
+<div class="wrap">
+  <header>
+    <h1>Daily Timetable</h1>
+    <div class="tagline">plan today, glow tomorrow</div>
+  </header>
+
+  <div class="toggle-row">
+    <button class="toggle-btn school active" data-view="school">🌸 Weekday (School Days)</button>
+    <button class="toggle-btn weekend" data-view="weekend">🌼 Weekend (Chill Mode)</button>
+  </div>
+
+  <div id="school-view">
+    <div class="card">
+      <div class="card-header school">🌸 Weekday (School Days) 🌸</div>
+      <div class="table-head"><span>TIME</span><span>VIBES</span></div>
+      <div id="school-rows"></div>
+    </div>
+  </div>
+
+  <div id="weekend-view" style="display:none;">
+    <div class="card">
+      <div class="card-header weekend">🌼 Weekend (Chill Mode) 🌼</div>
+      <div class="table-head"><span>TIME</span><span>VIBES</span></div>
+      <div id="weekend-rows"></div>
+    </div>
+  </div>
+
+  <div class="notes-card">
+    <div class="notes-title">📝 notes</div>
+    <textarea id="notes" placeholder="little reminders, goals, or today's mood..."></textarea>
+  </div>
+
+  <div class="save-note"><span class="dot">●</span> your times, vibes &amp; notes save automatically on this device</div>
+  <button class="reset-btn" id="reset-btn">↺ reset to default times</button>
+
+  <footer>made with ⋆｡˚ ☁︎ ˚｡⋆ for cozy planning</footer>
+</div>
+
+<script>
+  const schoolTimes = [
+    "5:00 AM – 6:00 AM","6:00 AM – 7:00 AM","7:00 AM – 8:00 AM","8:00 AM – 10:00 AM",
+    "10:00 AM – 12:00 PM","12:00 PM – 2:00 PM","2:00 PM – 4:00 PM","4:00 PM – 6:00 PM",
+    "6:00 PM – 8:00 PM","8:00 PM – 9:00 PM","9:00 PM – 10:30 PM"
+  ];
+  const weekendTimes = [
+    "7:00 AM – 8:00 AM","8:00 AM – 9:00 AM","9:00 AM – 10:00 AM","10:00 AM – 12:00 PM",
+    "12:00 PM – 2:00 PM","2:00 PM – 4:00 PM","4:00 PM – 6:00 PM","6:00 PM – 8:00 PM",
+    "8:00 PM – 9:00 PM","9:00 PM – 10:00 PM"
+  ];
+
+  function buildRows(containerId, times, prefix){
+    const container = document.getElementById(containerId);
+    times.forEach((t, i) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="time-pill c${i % 11}">
+          <span class="clock">🕐</span>
+          <input class="time-input" type="text" value="${t}" data-key="${prefix}-time-${i}" />
+        </div>
+        <input class="vibe-input" type="text" placeholder="add a vibe..." data-key="${prefix}-vibe-${i}" />
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  buildRows('school-rows', schoolTimes, 'school');
+  buildRows('weekend-rows', weekendTimes, 'weekend');
+
+  // toggle view
+  const schoolBtn = document.querySelector('.toggle-btn.school');
+  const weekendBtn = document.querySelector('.toggle-btn.weekend');
+  const schoolView = document.getElementById('school-view');
+  const weekendView = document.getElementById('weekend-view');
+
+  schoolBtn.addEventListener('click', () => {
+    schoolBtn.classList.add('active');
+    weekendBtn.classList.remove('active');
+    schoolView.style.display = 'block';
+    weekendView.style.display = 'none';
+  });
+  weekendBtn.addEventListener('click', () => {
+    weekendBtn.classList.add('active');
+    schoolBtn.classList.remove('active');
+    weekendView.style.display = 'block';
+    schoolView.style.display = 'none';
+  });
+
+  // persistence via localStorage (works since this is a static site, not a Claude artifact)
+  const STORAGE_KEY = 'kawaii-timetable-data';
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  function saveData(data){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+  }
+
+  const data = loadData();
+
+  // wire up every editable field (time inputs + vibe inputs)
+  document.querySelectorAll('.time-input, .vibe-input').forEach(input => {
+    const key = input.dataset.key;
+    if(data[key] !== undefined) input.value = data[key];
+    input.addEventListener('input', () => {
+      data[key] = input.value;
+      saveData(data);
+    });
+  });
+
+  const notesEl = document.getElementById('notes');
+  if(data.notes) notesEl.value = data.notes;
+  notesEl.addEventListener('input', () => {
+    data.notes = notesEl.value;
+    saveData(data);
+  });
+
+  // reset only the time fields back to defaults (keeps vibes + notes)
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if(!confirm('Reset all times back to the original schedule? Your vibes and notes will stay.')) return;
+    document.querySelectorAll('.time-input').forEach(input => {
+      const key = input.dataset.key;
+      const [prefix, , idxStr] = key.split('-');
+      const idx = parseInt(idxStr, 10);
+      const defaultVal = prefix === 'school' ? schoolTimes[idx] : weekendTimes[idx];
+      input.value = defaultVal;
+      data[key] = defaultVal;
+    });
+    saveData(data);
+  });
+</script>
+
+</body>
+</html>
