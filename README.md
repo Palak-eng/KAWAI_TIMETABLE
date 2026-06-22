@@ -1,51 +1,67 @@
-# 🌸 Kawaii Daily Timetable
+# Daily Planner
 
-link:https://kawai-time-table.netlify.app/
+A single-page, self-contained daily planner styled to match the original "Daily Planner" design — same layout, same color palette, and the actual bow/flower/bunny/butterfly artwork from the source design. No build step, no server, no account. Just open the HTML file in a browser.
 
-Wanted a cute timetable, so I built one. A single-page, pastel-pink planner for tracking your weekday and weekend schedule — editable times, custom "vibes" for each slot, and a notes box, all wrapped in a soft kawaii aesthetic.
+## Features
 
-![style](https://img.shields.io/badge/style-kawaii-ffb3c6) ![type](https://img.shields.io/badge/type-static%20site-cdeee0)
+- **To Do List** — add, check off, and delete tasks. Completed tasks get struck through.
+- **Priorities** — a separate short list for the few things that matter most today.
+- **Notes** — a free-text scratchpad, ruled like notebook paper.
+- **Day picker** — click any day in the current week's strip to select it. Each day sits in its own fixed circular slot, so the selection ring is always a clean, evenly-centered circle regardless of whether the label is "SUN" or "WED." The selected day gets a soft pink fill plus an outline ring; today always has a small dot under it so you can tell "today" apart from whichever day you're currently viewing.
+- **Per-day data** — each day of the week keeps its own to-do list, priorities, and notes. Switching days doesn't erase or mix anything.
+- **Reset this day** — a small link under the date clears the to-dos, priorities, and notes for the currently selected day only. It asks for confirmation first, so you can't wipe a day by accident, and it doesn't touch any other day.
+- **Autosave** — every change (checking a box, typing a task, editing notes) saves automatically. A small "Saved" pill flashes in the bottom-right corner to confirm.
+- **Persistence across reloads** — close the tab, restart your browser, come back tomorrow: your data is still there.
+- **Real artwork** — the bow, flower, bunny, and butterfly are the actual graphics from the original design (extracted and embedded directly into the file), not redrawn approximations.
 
-## ✨ Features
+## How to use it
 
-- **Two schedules** — toggle between Weekday (School Days) and Weekend (Chill Mode)
-- **Editable time slots** — click any time block and type your own
-- **Custom vibes** — add a note, mood, or task next to each time slot
-- **Notes section** — space for reminders or goals
-- **Auto-save** — everything is saved automatically in your browser (via `localStorage`), so it's still there next time you open the file
-- **Reset button** — restore the default times anytime without losing your vibes or notes
-- **No build tools, no dependencies** — it's one HTML file
+1. Open `daily-planner.html` in any modern browser (Chrome, Safari, Firefox, Edge).
+2. Click a day in the top-right strip to select it.
+3. Add tasks/priorities by typing in the input row and pressing **Enter**.
+4. Click the checkbox to mark something done; click the **✕** (appears on hover) to delete it.
+5. Type freely in the Notes box — it saves a moment after you stop typing.
+6. To clear a day, click **"Reset this day"** under the date and confirm.
 
-## 🚀 Getting started
+That's it — no setup, no login.
 
-Just open `kawaii-timetable.html` in any web browser. That's it — no installation, no server required.
+## How data is saved
 
-## 💾 How saving works
+Data is stored in the browser's `localStorage`, under the key `dailyPlannerData_v1`, as a JSON object keyed by date (`YYYY-MM-DD`). For example:
 
-Your edits are stored locally in your browser, tied to this specific file. That means:
+```json
+{
+  "days": {
+    "2026-06-22": {
+      "todos": [{ "id": "id1a2b3c", "text": "Finish report", "done": false }],
+      "priorities": [{ "id": "id4d5e6f", "text": "Call dentist", "done": true }],
+      "notes": "Remember to bring the charger."
+    }
+  }
+}
+```
 
-- Reopening the **same file** in the **same browser** on the **same device** → your data is still there
-- Renaming the file, moving it to a different location, or opening it in a different browser → starts fresh
+Resetting a day simply replaces that date's entry with an empty `{ todos: [], priorities: [], notes: "" }` — it does not touch any other date's data.
 
-If you want your schedule synced across devices or backed up properly, that would need a small backend (this version doesn't include one).
+### Important limitations
 
-## 🌐 Deploying for free
+- **Local to one browser, one device.** Data is not synced anywhere. Opening the file in a different browser, a different device, or in private/incognito mode will not show your saved data — it starts empty.
+- **Clearing browser data deletes it.** If you clear your browser's site data/cache/local storage, the planner's saved content is gone. There is currently no export/backup button.
+- **Resetting is permanent.** Once you confirm "Reset this day," that day's data cannot be recovered — there is no undo.
+- **The day strip shows the current calendar week** (Sunday–Saturday based on today's date) — it does not let you browse past or future weeks. Selecting, say, "Monday" always shows this week's Monday entry, not a fresh slate, unless you've reset or changed it.
 
-Since this is a single static HTML file, you can host it for free with any of these:
+## Customizing
 
-- **[Netlify Drop](https://app.netlify.com/drop)** — drag and drop the file, get a live link instantly, no account required to start
-- **[GitHub Pages](https://pages.github.com/)** — push to a GitHub repo and enable Pages for a free `username.github.io` link
-- **[Vercel](https://vercel.com/)** — connect a repo or drag-and-drop deploy
-- **[Cloudflare Pages](https://pages.cloudflare.com/)** — similar drag-and-drop or Git-based deploy
+Everything is in one file (`daily-planner.html`) — no dependencies to install, other than two Google Fonts loaded via CDN (`Cormorant` for headings, `Quicksand` for body text).
 
-## 🛠 Customizing
+- **Colors**: edit the CSS variables at the top of the `<style>` block (`--bg`, `--rule`, `--text-deep`, etc.) to change the theme.
+- **Artwork**: the bow, flower, bunny, and butterfly are embedded as base64-encoded PNGs directly in the HTML (`<img class="deco ...">` tags). To swap them, replace the `src="data:image/png;base64,..."` value with a new base64 string, and adjust the matching `.deco-*` position/size rules in the CSS.
+- **Adding more sections**: follow the pattern used for `todos`/`priorities` — each is a list of `{ id, text, done }` objects rendered by the same `renderList()` function.
 
-Everything lives in one file (`kawaii-timetable.html`):
+## Possible future upgrades
 
-- **Colors** — edit the CSS variables at the top of the `<style>` block (`--pink`, `--peach`, `--mint`, etc.)
-- **Default times** — edit the `schoolTimes` and `weekendTimes` arrays near the bottom of the file
-- **Fonts** — currently uses Baloo 2 (headings) and Quicksand (body) from Google Fonts
-
-## 📄 License
-
-Free to use, edit, and share for personal projects.
+- Export/import data as a JSON or PDF file (manual backup)
+- Sync across devices via an account + cloud database
+- Month/year view instead of just the current week
+- Drag-to-reorder tasks
+- Undo for "Reset this day"
